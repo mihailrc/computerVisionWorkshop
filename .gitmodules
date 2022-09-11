@@ -1,0 +1,6 @@
+[submodule "yolov7"]
+	path = yolov7
+	url = git@github.com:WongKinYiu/yolov7.git
+[submodule "deepsort"]
+	path = deepsort
+	url = git@github.com:ZQPei/deep_sort_pytorch.git
