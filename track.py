@@ -1,5 +1,7 @@
 import argparse
 import time
+import os
+import sys
 from pathlib import Path
 
 import cv2
@@ -8,6 +10,17 @@ import torch.backends.cudnn as cudnn
 from numpy import random
 import numpy as np
 
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[0]  # yolov5 strongsort root directory
+WEIGHTS = ROOT / 'weights'
+
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))  # add ROOT to PATH
+if str(ROOT / 'yolov7') not in sys.path:
+    sys.path.append(str(ROOT / 'yolov7'))  # add yolov5 ROOT to PATH
+ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
+
+
 from yolov7.models.experimental import attempt_load
 from yolov7.utils.datasets import LoadStreams, LoadImages
 from yolov7.utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
@@ -15,8 +28,8 @@ from yolov7.utils.general import check_img_size, check_requirements, check_imsho
 from yolov7.utils.plots import plot_one_box
 from yolov7.utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
-from deepsort.utils.parser import get_config
-from deepsort.deep_sort import DeepSort
+from deep_sort_pytorch.utils.parser import get_config
+from deep_sort_pytorch.deep_sort import DeepSort
 from collections import deque
 
 palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)

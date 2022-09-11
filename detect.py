@@ -1,4 +1,6 @@
 import argparse
+import os
+import sys
 import time
 from pathlib import Path
 
@@ -6,6 +8,16 @@ import cv2
 import torch
 import torch.backends.cudnn as cudnn
 from numpy import random
+
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[0]  # yolov7 root directory
+WEIGHTS = ROOT / 'weights'
+
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))  # add ROOT to PATH
+if str(ROOT / 'yolov7') not in sys.path:
+    sys.path.append(str(ROOT / 'yolov7'))  # add yolov7 ROOT to PATH
+ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from yolov7.models.experimental import attempt_load
 from yolov7.utils.datasets import LoadStreams, LoadImages
