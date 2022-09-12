@@ -2,3 +2,4 @@ venv/
 .idea/
 runs/
 *.pt
+__pycache__/
