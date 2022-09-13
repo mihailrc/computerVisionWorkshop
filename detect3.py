@@ -22,23 +22,22 @@ from drawUtils import draw_boxes
 
 if __name__ == '__main__':
 
-    # dataset = LoadImages('traffic.mp4')
-    dataset = LoadImages('inference/images/bus.jpg')
+    dataset = LoadImages('traffic.mp4')
+    # dataset = LoadImages('inference/images/bus.jpg')
     print("Loaded:", len(dataset), "images")
-    # detector = Yolov7Detector(weights="yolov7-tiny.pt", traced=True, classes=[2,3,5,7])
-    detector = Yolov7Detector(weights="yolov7-tiny.pt", traced=True)
+    detector = Yolov7Detector(weights="yolov7-tiny.pt", traced=True, classes=[2,3,5,7])
+    # detector = Yolov7Detector(weights="yolov7-tiny.pt", traced=True)
     tracker = DeepsSortTracker()
     for path, _, im0s, vid_cap in dataset:
         xyxy,xywh, scores,class_ids = detector.detect(im0s)
-        # print(xyxy)
-        # outputs = tracker.update(xywh, scores, class_ids, im0s)
-        # if len(outputs) > 0:
-        #     bbox_xyxy = outputs[:, :4]
-        #     identities = outputs[:, -2]
-        #     object_id = outputs[:, -1]
-        #     draw_boxes(im0s, bbox_xyxy, object_id, identities)
+        outputs = tracker.update(xywh, scores, class_ids, im0s)
+        if len(outputs) > 0:
+            bbox_xyxy = outputs[:, :4]
+            identities = outputs[:, -2]
+            object_id = outputs[:, -1]
+            draw_boxes(im0s, bbox_xyxy, object_id, identities)
         # print(outputs)
-        img = detector.draw_boxes(im0s, xyxy, scores, class_ids)
+        # img = detector.draw_boxes(im0s, xyxy, scores, class_ids)
         cv2.imshow("image", im0s)
-        cv2.waitKey()
+        cv2.waitKey(1)
 

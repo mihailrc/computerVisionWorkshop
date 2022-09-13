@@ -116,25 +116,18 @@ class Yolov7Detector:
         pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, classes=self.classes, agnostic=self.agnostic_nms)
         # t3 = time_synchronized()
 
-        print(pred)
+        # print(pred)
         xyxy_bboxs = []
         xywh_bboxs = []
         scores = []
         class_ids = []
         for i, det in enumerate(pred):
             if len(det):
-                x_scale=orig_image_shape[0]/resized_img_shape[0]
-                y_scale=orig_image_shape[1]/resized_img_shape[1]
-                # unscaled = det[:, :4].detach()
-                # scaled = scale_coords(img.shape[2:], unscaled, orig_image_shape).round()
+                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], orig_image_shape).round()
                 for *xyxy, score, cls in det:
                     coords = torch.tensor(xyxy).tolist()
-                    xyxy_scaled = [coords[0] * y_scale, coords[1] * x_scale, coords[2] * y_scale, coords[3] * x_scale]
-                    # xyxy_scaled = scaled[i]
-                    # print("Rescaled 1:", det[:, :4])
-                    # print("Recaled 2:", xyxy_scaled)
-                    xyxy_bboxs.append(xyxy_scaled)
-                    xywh_bboxs.append(self.xyxy2xywh(xyxy_scaled))
+                    xyxy_bboxs.append(coords)
+                    xywh_bboxs.append(self.xyxy2xywh(coords))
                     scores.append(score.item())
                     class_ids.append(int(cls))
 
