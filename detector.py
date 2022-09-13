@@ -116,24 +116,40 @@ class Yolov7Detector:
         pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, classes=self.classes, agnostic=self.agnostic_nms)
         # t3 = time_synchronized()
 
+        print(pred)
         xyxy_bboxs = []
+        xywh_bboxs = []
         scores = []
         class_ids = []
         for i, det in enumerate(pred):
             if len(det):
                 x_scale=orig_image_shape[0]/resized_img_shape[0]
                 y_scale=orig_image_shape[1]/resized_img_shape[1]
+                # unscaled = det[:, :4].detach()
+                # scaled = scale_coords(img.shape[2:], unscaled, orig_image_shape).round()
                 for *xyxy, score, cls in det:
                     coords = torch.tensor(xyxy).tolist()
                     xyxy_scaled = [coords[0] * y_scale, coords[1] * x_scale, coords[2] * y_scale, coords[3] * x_scale]
+                    # xyxy_scaled = scaled[i]
+                    # print("Rescaled 1:", det[:, :4])
+                    # print("Recaled 2:", xyxy_scaled)
                     xyxy_bboxs.append(xyxy_scaled)
+                    xywh_bboxs.append(self.xyxy2xywh(xyxy_scaled))
                     scores.append(score.item())
                     class_ids.append(int(cls))
 
-        return xyxy_bboxs, scores, class_ids
+        return xyxy_bboxs, xywh_bboxs, scores, class_ids
 
     def draw_boxes(self, img, xyxy, scores, class_ids):
         for i, box in enumerate(xyxy):
             label="{class_name:}: {score:.2f}".format(class_name=self.class_names[int(class_ids[i])], score=scores[i])
-            plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=3)
+            plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=1)
         return img
+
+    def xyxy2xywh(self, x):
+        y = np.copy(x)
+        y[0] = (x[0] + x[2]) / 2  # x center
+        y[1] = (x[1] + x[3]) / 2  # y center
+        y[2] = x[2] - x[0]  # width
+        y[3] = x[3] - x[1]  # height
+        return y

@@ -16,17 +16,29 @@ if str(ROOT / 'yolov7') not in sys.path:
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from detector import Yolov7Detector
+from tracker import DeepsSortTracker
 from yolov7.utils.datasets import LoadStreams, LoadImages
+from drawUtils import draw_boxes
 
 if __name__ == '__main__':
 
-    # dataset = LoadImages('inference/images/bus.jpg')
-    dataset = LoadImages('traffic.mp4')
+    # dataset = LoadImages('traffic.mp4')
+    dataset = LoadImages('inference/images/bus.jpg')
     print("Loaded:", len(dataset), "images")
+    # detector = Yolov7Detector(weights="yolov7-tiny.pt", traced=True, classes=[2,3,5,7])
     detector = Yolov7Detector(weights="yolov7-tiny.pt", traced=True)
+    tracker = DeepsSortTracker()
     for path, _, im0s, vid_cap in dataset:
-        xxyy,scores,class_ids = detector.detect(im0s)
-        img = detector.draw_boxes(im0s, xxyy, scores, class_ids)
-        cv2.imshow("image", img)
-        cv2.waitKey(1)
+        xyxy,xywh, scores,class_ids = detector.detect(im0s)
+        # print(xyxy)
+        # outputs = tracker.update(xywh, scores, class_ids, im0s)
+        # if len(outputs) > 0:
+        #     bbox_xyxy = outputs[:, :4]
+        #     identities = outputs[:, -2]
+        #     object_id = outputs[:, -1]
+        #     draw_boxes(im0s, bbox_xyxy, object_id, identities)
+        # print(outputs)
+        img = detector.draw_boxes(im0s, xyxy, scores, class_ids)
+        cv2.imshow("image", im0s)
+        cv2.waitKey()
 
