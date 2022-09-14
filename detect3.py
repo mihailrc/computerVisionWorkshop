@@ -18,7 +18,8 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 from detector import Yolov7Detector
 from tracker import DeepsSortTracker
 from yolov7.utils.datasets import LoadStreams, LoadImages
-from drawUtils import draw_boxes
+from drawUtils import draw_tracking_info
+from yolov7.utils.torch_utils import time_synchronized
 
 if __name__ == '__main__':
 
@@ -29,15 +30,20 @@ if __name__ == '__main__':
     # detector = Yolov7Detector(weights="yolov7-tiny.pt", traced=True)
     tracker = DeepsSortTracker()
     for path, _, im0s, vid_cap in dataset:
-        xyxy,xywh, scores,class_ids = detector.detect(im0s)
-        outputs = tracker.update(xywh, scores, class_ids, im0s)
-        if len(outputs) > 0:
-            bbox_xyxy = outputs[:, :4]
-            identities = outputs[:, -2]
-            object_id = outputs[:, -1]
-            draw_boxes(im0s, bbox_xyxy, object_id, identities)
-        # print(outputs)
-        # img = detector.draw_boxes(im0s, xyxy, scores, class_ids)
+        #detection
+        t1 = time_synchronized()
+        xyxy, scores,class_ids = detector.detect(im0s)
+        t2 = time_synchronized()
+        print("Detection time (ms):", (t2 - t1) * 1000)
+        #tracking
+        xyxy_t,class_ids_t, object_ids_t = tracker.update(xyxy, scores, class_ids, im0s)
+        t3 = time_synchronized()
+        print("Detection time (ms):" , (t2-t1)*1000, " Tracking time(ms): ", (t3-t2)*1000, " Total Time (ms):", (t3-t1)*1000)
+        #draw on images if you wish
+        im0s = detector.draw_boxes(im0s, xyxy, scores, class_ids)
+        if xyxy_t is not None:
+            draw_tracking_info(im0s, xyxy_t, class_ids_t, identities=object_ids_t, classes=detector.class_names)
+
         cv2.imshow("image", im0s)
         cv2.waitKey(1)
 

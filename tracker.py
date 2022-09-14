@@ -1,9 +1,8 @@
 import torch
-import torch.backends.cudnn as cudnn
 
 from deep_sort_pytorch.utils.parser import get_config
 from deep_sort_pytorch.deep_sort import DeepSort
-from collections import deque
+import numpy as np
 
 class DeepsSortTracker:
 
@@ -18,7 +17,22 @@ class DeepsSortTracker:
                             nn_budget=cfg_deep.DEEPSORT.NN_BUDGET,
                             use_cuda=True)
 
-    def update(self, xywhs, scores, oids, im0):
-        xywhsTensor = torch.Tensor(xywhs)
+    def xyxy2xywh(self, x):
+        x = np.array(x)
+        y = np.copy(x)
+        y[:,0] = (x[:,0] + x[:,2]) / 2  # x center
+        y[:,1] = (x[:,1] + x[:,3]) / 2  # y center
+        y[:,2] = x[:,2] - x[:,0]  # width
+        y[:,3] = x[:,3] - x[:,1]  # height
+        return y
+
+    def update(self, xyxy, scores, class_ids, im0):
+        xywhsTensor = torch.Tensor(self.xyxy2xywh(xyxy))
         scoresTensor = torch.Tensor(scores)
-        return self.tracker.update(xywhsTensor, scoresTensor, oids, im0)
+        outputs = self.tracker.update(xywhsTensor, scoresTensor, class_ids, im0)
+        if len(outputs) > 0:
+            xxyys = outputs[:, :4]
+            class_ids = outputs[:, -1]
+            object_ids = outputs[:, -2]
+            return xxyys, class_ids,object_ids
+        return None,None,None

@@ -2,6 +2,7 @@ from collections import deque
 import cv2
 from numpy import random
 import numpy as np
+from yolov7.utils.plots import plot_one_box
 
 palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
 data_deque = {}
@@ -100,7 +101,8 @@ def intersect(A,B,C,D):
 def ccw(A,B,C):
     return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
 
-def draw_boxes(img, bbox, object_id, identities=None, offset=(0, 0)):
+def draw_tracking_info(img, bbox, object_id, identities=None, classes=None, offset=(0, 0)):
+
     height, _, _ = img.shape
     calilbration_constant = .01
     # remove tracked point from buffer if object is lost
@@ -128,9 +130,7 @@ def draw_boxes(img, bbox, object_id, identities=None, offset=(0, 0)):
             data_deque[id] = deque(maxlen=trailslen)
 
         color = compute_color_for_labels(object_id[i])
-        #todo make it dynamic
-        # label = '%s:%s' % (names[object_id[i]], id)
-        label = '%s:%s' % ("car", id)
+        label = '%s:%s' % (classes[object_id[i]], id)
 
         # add center to buffer
         data_deque[id].appendleft(center)
