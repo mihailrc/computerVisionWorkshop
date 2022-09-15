@@ -38,4 +38,3 @@ thop  # FLOPs computation
 # pycocotools>=2.0  # COCO mAP
 # roboflow
 easydict==1.9
-yolov7-package
