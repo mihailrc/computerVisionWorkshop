@@ -133,18 +133,21 @@ class Yolov7Detector:
 
         return xyxy_bboxs, scores, class_ids
 
-    def draw_boxes(self, img, xyxy, scores, class_ids):
+    def draw_boxes(self, img, xyxy, scores, class_ids, object_ids):
         for i, box in enumerate(xyxy):
-            label="{class_name:}: {score:.2f}".format(class_name=self.class_names[int(class_ids[i])], score=scores[i])
+            label="{class_name:}: {score:.2f}".format(class_name=self.class_names[int(class_ids[i])], score=100)
             plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=1)
-            x1, y1, x2, y2 = box[0], box[1], box[2], box[3]            
+            x1, y1, x2, y2 = box[0], box[1], box[2], box[3]     
+
+            # get ID of object
+            id = int(object_ids[i]) if object_ids is not None else 0       
 
             x,y = self.center(x1,y1,x2,y2)
             state = self.check_car_position(x,y,id)
             if state:
                 self.counter+=1
 
-            cv2.putText(img, f"Total Cars crossed: {self.counter}", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)        
+            cv2.putText(img, f"Total Vehicles crossed: {self.counter}", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)        
             cv2.line(img,self.line[0],self.line[1], self.color,4)   
         return img
 
@@ -156,7 +159,12 @@ class Yolov7Detector:
     def check_car_position(self,x,y,id):
         xLine, yLine = self.line
         if x> xLine[0] and x < yLine[0]:
-            if y > yLine[1] and ((y - yLine[1]) <= 32):
+            if y > yLine[1]:
+                if self.cars_id.__contains__(id):
+                    return False
+                    
+                self.cars_id.append(id)
+
                 return True
             
         return False
