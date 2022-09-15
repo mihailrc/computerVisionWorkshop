@@ -47,7 +47,10 @@ class Yolov7Detector:
         self.traced = traced
         self.classes = classes
         self.img_size=img_size
-
+        self.cars_id = []
+        self.color = (0, 255, 0)
+        self.line = (180, 450),(1100, 450)
+        self.counter = 0
 
         # sys.path.append(os.path.join(os.path.dirname(__file__), ""))
 
@@ -134,5 +137,26 @@ class Yolov7Detector:
         for i, box in enumerate(xyxy):
             label="{class_name:}: {score:.2f}".format(class_name=self.class_names[int(class_ids[i])], score=scores[i])
             plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=1)
+            x1, y1, x2, y2 = box[0], box[1], box[2], box[3]            
+
+            x,y = self.center(x1,y1,x2,y2)
+            state = self.check_car_position(x,y,id)
+            if state:
+                self.counter+=1
+
+            cv2.putText(img, f"Total Cars crossed: {self.counter}", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)        
+            cv2.line(img,self.line[0],self.line[1], self.color,4)   
         return img
 
+    def center(self, x1,y1,x2,y2):
+            x = (x1+x2)/2
+            y = (y1+y2)/2
+            return x,y
+
+    def check_car_position(self,x,y,id):
+        xLine, yLine = self.line
+        if x> xLine[0] and x < yLine[0]:
+            if y > yLine[1] and ((y - yLine[1]) <= 32):
+                return True
+            
+        return False

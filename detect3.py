@@ -29,6 +29,8 @@ if __name__ == '__main__':
     detector = Yolov7Detector(weights="yolov7-tiny.pt", traced=True, classes=[2,3,5,7])
     # detector = Yolov7Detector(weights="yolov7-tiny.pt", traced=True)
     tracker = DeepsSortTracker()
+    initializeVideoWriter, vid_writer = False, None
+    
     for path, _, im0s, vid_cap in dataset:
         #detection
         t1 = time_synchronized()
@@ -40,10 +42,23 @@ if __name__ == '__main__':
         t3 = time_synchronized()
         print("Detection time (ms):" , (t2-t1)*1000, " Tracking time(ms): ", (t3-t2)*1000, " Total Time (ms):", (t3-t1)*1000)
         #draw on images if you wish
+        print(xyxy)
         im0s = detector.draw_boxes(im0s, xyxy, scores, class_ids)
         if xyxy_t is not None:
             draw_tracking_info(im0s, xyxy_t, class_ids_t, identities=object_ids_t, classes=detector.class_names)
 
-        cv2.imshow("image", im0s)
+        if not initializeVideoWriter:  # new video
+            initializeVideoWriter = True
+            if isinstance(vid_writer, cv2.VideoWriter):
+                vid_writer.release()  # release previous video writer
+            
+            fps, w, h = 30, im0s.shape[1], im0s.shape[0]
+            vid_writer = cv2.VideoWriter('/workspaces/computerVisionWorkshop/traffictest.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+
+        vid_writer.write(im0s)
+
+        # if isinstance(vid_writer, cv2.VideoWriter):
+       #     vid_writer.release()  # release previous video writer 
+        # cv2.imshow("image", im0s)
         cv2.waitKey(1)
 
