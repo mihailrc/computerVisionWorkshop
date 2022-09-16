@@ -81,7 +81,7 @@ class Yolov7Detector:
         # self.model.eval()
         # Run inference
         if self.device.type != 'cpu':
-            self.model(torch.zeros(1, 3, self.imgsz, self.imgsz).to(device).type_as(next(self.model.parameters())))  # run once
+            self.model(torch.zeros(1, 3, self.imgsz, self.imgsz).to(self.device).type_as(next(self.model.parameters())))  # run once
 
     def detect(self, img0):
         """
