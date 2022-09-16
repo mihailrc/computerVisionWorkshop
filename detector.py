@@ -33,7 +33,8 @@ class Yolov7Detector:
                  agnostic_nms=False,
                  device='cpu',
                  classes=None,
-                 traced=False):
+                 traced=False,
+                 model=None):
 
         if img_size is None:
             img_size = 640
@@ -61,8 +62,9 @@ class Yolov7Detector:
         self.half = self.device.type != 'cpu'  # half precision only supported on CUDA
 
         print("Attempting to load model")
-        # Load model
-        self.model = attempt_load(weights, map_location=device)  # load FP32 model
+        # Load model - allow to pass model as parameter to avoid error in Google Colab
+        self.model=model if model is not None else attempt_load(weights, map_location=device)  # load FP32 model
+
         self.class_names=self.model.module.names if hasattr(self.model, 'module') else self.model.names
         self.colors=[[np.random.randint(0, 255) for _ in range(3)] for _ in self.class_names]
 
