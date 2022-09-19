@@ -31,10 +31,10 @@ if __name__ == '__main__':
     tracker = DeepsSortTracker()
     initializeVideoWriter, vid_writer = False, None
     
-    for path, _, im0s, vid_cap in dataset:
+    for path, img, im0s, vid_cap in dataset:
         #detection
         t1 = time_synchronized()
-        xyxy, scores,class_ids = detector.detect(im0s)
+        xyxy, scores,class_ids = detector.detect(img)
         t2 = time_synchronized()
         print("Detection time (ms):", (t2 - t1) * 1000)
         #tracking

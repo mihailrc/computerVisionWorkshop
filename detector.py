@@ -91,15 +91,16 @@ class Yolov7Detector:
         :return: predictions tensor
         """
 
+        img=img0
         # Padded resize
-        img = letterbox(img0, self.img_size, stride=self.stride)[0]
-        orig_image_shape=img0.shape
-        resized_img_shape=img.shape
-
-        # Convert
-        img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
-        img = np.ascontiguousarray(img)
-
+        # img = letterbox(img0, self.img_size, stride=self.stride)[0]
+        # orig_image_shape=img0.shape
+        # resized_img_shape=img.shape
+        #
+        # # Convert
+        # img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+        # img = np.ascontiguousarray(img)
+        #
         img = torch.from_numpy(img).to(self.device)
         img = img.half() if self.half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -130,7 +131,7 @@ class Yolov7Detector:
         class_ids = []
         for i, det in enumerate(pred):
             if len(det):
-                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], orig_image_shape).round()
+                # det[:, :4] = scale_coords(img.shape[2:], det[:, :4], orig_image_shape).round()
                 for *xyxy, score, cls in det:
                     coords = torch.tensor(xyxy).tolist()
                     xyxy_bboxs.append(coords)
