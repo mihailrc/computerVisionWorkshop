@@ -47,10 +47,7 @@ class Yolov7Detector:
         self.traced = traced
         self.classes = classes
         self.img_size=img_size
-        self.cars_id = []
         self.color = (0, 255, 0)
-        self.line = (180, 450),(1100, 450)
-        self.counter = 0
 
         # sys.path.append(os.path.join(os.path.dirname(__file__), ""))
 
@@ -133,28 +130,20 @@ class Yolov7Detector:
 
         return xyxy_bboxs, scores, class_ids
 
-    def draw_boxes(self, img, xyxy, scores, class_ids, object_ids):
+    def draw_boxes(self, img, xyxy, scores, class_ids, object_ids, lanes):
         for i, box in enumerate(xyxy):
             label="{class_name:}: {score:.2f}".format(class_name=self.class_names[int(class_ids[i])], score=100)
-            plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=1)
-            x1, y1, x2, y2 = box[0], box[1], box[2], box[3]     
+            plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=1)            
 
-            # get ID of object
-            id = int(object_ids[i]) if object_ids is not None else 0       
-
-            x,y = self.center(x1,y1,x2,y2)
-            state = self.check_car_position(x,y,id)
-            if state:
-                self.counter+=1
-
-            cv2.putText(img, f"Total Vehicles crossed: {self.counter}", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)        
-            cv2.line(img,self.line[0],self.line[1], self.color,4)   
+            for i, lane in enumerate(lanes):
+                cv2.putText(img, f"Lane{ i }: { lane[2] }", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)        
+                cv2.line(img,lane[0],lane[1], self.color,4)   
         return img
 
     def center(self, x1,y1,x2,y2):
-            x = (x1+x2)/2
-            y = (y1+y2)/2
-            return x,y
+        x = (x1+x2)/2
+        y = (y1+y2)/2
+        return x,y
 
     def check_car_position(self,x,y,id):
         xLine, yLine = self.line
