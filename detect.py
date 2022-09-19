@@ -46,8 +46,6 @@ def detect(save_img=False):
     model = attempt_load(weights, map_location=device)  # load FP32 model
     stride = int(model.stride.max())  # model stride
 
-    print("Img Size:", imgsz, " Stride: ", stride)
-
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
 
     if trace:

@@ -33,8 +33,7 @@ class Yolov7Detector:
                  agnostic_nms=False,
                  device='',
                  classes=None,
-                 traced=False,
-                 model=None):
+                 traced=False):
 
         if img_size is None:
             img_size = 640
@@ -62,8 +61,7 @@ class Yolov7Detector:
         self.half = self.device.type != 'cpu'  # half precision only supported on CUDA
 
         print("Attempting to load model")
-        # Load model - allow to pass model as parameter to avoid error in Google Colab
-        self.model=model if model is not None else attempt_load(weights, map_location=self.device)  # load FP32 model
+        self.model=attempt_load(weights, map_location=self.device)  # load FP32 model
 
         self.class_names=self.model.module.names if hasattr(self.model, 'module') else self.model.names
         self.colors=[[np.random.randint(0, 255) for _ in range(3)] for _ in self.class_names]
@@ -82,6 +80,10 @@ class Yolov7Detector:
         # Run inference
         if self.device.type != 'cpu':
             self.model(torch.zeros(1, 3, self.imgsz, self.imgsz).to(self.device).type_as(next(self.model.parameters())))  # run once
+
+        self.old_img_w=self.imgsz
+        self.old_img_h=self.imgsz
+        self.old_img_b=1
 
     def detect(self, img0):
         """
@@ -104,14 +106,14 @@ class Yolov7Detector:
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
 
-        # Warmup
-        # if self.device.type != 'cpu' and (
-        #         old_img_b != img.shape[0] or old_img_h != img.shape[2] or old_img_w != img.shape[3]):
-        #     old_img_b = img.shape[0]
-        #     old_img_h = img.shape[2]
-        #     old_img_w = img.shape[3]
-        #     for i in range(3):
-        #         self.model(img, augment=self.augment)[0]
+        #Warmup
+        if self.device.type != 'cpu' and (
+                self.old_img_b != img.shape[0] or self.old_img_h != img.shape[2] or self.old_img_w != img.shape[3]):
+            self.old_img_b = img.shape[0]
+            self.old_img_h = img.shape[2]
+            self.old_img_w = img.shape[3]
+            for i in range(3):
+                self.model(img, augment=self.augment)[0]
 
         # Inference
         # t1 = time_synchronized()
