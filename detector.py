@@ -31,7 +31,7 @@ class Yolov7Detector:
                  iou_thres=0.45,
                  augment=False,
                  agnostic_nms=False,
-                 device='cpu',
+                 device='',
                  classes=None,
                  traced=False,
                  model=None):
@@ -63,7 +63,7 @@ class Yolov7Detector:
 
         print("Attempting to load model")
         # Load model - allow to pass model as parameter to avoid error in Google Colab
-        self.model=model if model is not None else attempt_load(weights, map_location=device)  # load FP32 model
+        self.model=model if model is not None else attempt_load(weights, map_location=self.device)  # load FP32 model
 
         self.class_names=self.model.module.names if hasattr(self.model, 'module') else self.model.names
         self.colors=[[np.random.randint(0, 255) for _ in range(3)] for _ in self.class_names]
@@ -72,7 +72,7 @@ class Yolov7Detector:
         self.imgsz = check_img_size(img_size, s=self.stride)  # check img_size
 
         if self.traced:
-            self.model = TracedModel(self.model, device, self.img_size)
+            self.model = TracedModel(self.model, self.device, self.img_size)
 
         if self.half:
             self.model.half()  # to FP16
@@ -137,30 +137,39 @@ class Yolov7Detector:
 
         return xyxy_bboxs, scores, class_ids
 
-    def draw_boxes(self, img, xyxy, scores, class_ids):
+    def draw_boxes(self, img, xyxy, scores, class_ids, object_ids):
         for i, box in enumerate(xyxy):
-            label="{class_name:}: {score:.2f}".format(class_name=self.class_names[int(class_ids[i])], score=scores[i])
+            label = "{class_name:}: {score:.2f}".format(class_name=self.class_names[int(class_ids[i])], score=100)
             plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=1)
-            x1, y1, x2, y2 = box[0], box[1], box[2], box[3]            
+            x1, y1, x2, y2 = box[0], box[1], box[2], box[3]
 
-            x,y = self.center(x1,y1,x2,y2)
-            state = self.check_car_position(x,y,id)
+            # get ID of object
+            id = int(object_ids[i]) if object_ids is not None else 0
+
+            x, y = self.center(x1, y1, x2, y2)
+            state = self.check_car_position(x, y, id)
             if state:
-                self.counter+=1
+                self.counter += 1
 
-            cv2.putText(img, f"Total Cars crossed: {self.counter}", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)        
-            cv2.line(img,self.line[0],self.line[1], self.color,4)   
+            cv2.putText(img, f"Total Vehicles crossed: {self.counter}", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                        self.color, 2)
+            cv2.line(img, self.line[0], self.line[1], self.color, 4)
         return img
 
-    def center(self, x1,y1,x2,y2):
-            x = (x1+x2)/2
-            y = (y1+y2)/2
-            return x,y
+    def center(self, x1, y1, x2, y2):
+        x = (x1 + x2) / 2
+        y = (y1 + y2) / 2
+        return x, y
 
-    def check_car_position(self,x,y,id):
+    def check_car_position(self, x, y, id):
         xLine, yLine = self.line
-        if x> xLine[0] and x < yLine[0]:
-            if y > yLine[1] and ((y - yLine[1]) <= 32):
+        if x > xLine[0] and x < yLine[0]:
+            if y > yLine[1]:
+                if self.cars_id.__contains__(id):
+                    return False
+
+                self.cars_id.append(id)
+
                 return True
-            
+
         return False
