@@ -31,7 +31,7 @@ class Yolov7Detector:
                  iou_thres=0.45,
                  augment=False,
                  agnostic_nms=False,
-                 device='cpu',
+                 device='',
                  classes=None,
                  traced=False):
 
@@ -54,10 +54,12 @@ class Yolov7Detector:
         # Initialize
         set_logging()
         self.device = select_device(device)
+        print("Selected device:", self.device)
         self.half = self.device.type != 'cpu'  # half precision only supported on CUDA
 
-        # Load model
-        self.model = attempt_load(weights, map_location=device)  # load FP32 model
+        print("Attempting to load model")
+        self.model=attempt_load(weights, map_location=self.device)  # load FP32 model
+
         self.class_names=self.model.module.names if hasattr(self.model, 'module') else self.model.names
         self.colors=[[np.random.randint(0, 255) for _ in range(3)] for _ in self.class_names]
 
@@ -65,7 +67,7 @@ class Yolov7Detector:
         self.imgsz = check_img_size(img_size, s=self.stride)  # check img_size
 
         if self.traced:
-            self.model = TracedModel(self.model, device, self.img_size)
+            self.model = TracedModel(self.model, self.device, self.img_size)
 
         if self.half:
             self.model.half()  # to FP16
@@ -74,7 +76,11 @@ class Yolov7Detector:
         # self.model.eval()
         # Run inference
         if self.device.type != 'cpu':
-            self.model(torch.zeros(1, 3, self.imgsz, self.imgsz).to(device).type_as(next(self.model.parameters())))  # run once
+            self.model(torch.zeros(1, 3, self.imgsz, self.imgsz).to(self.device).type_as(next(self.model.parameters())))  # run once
+
+        self.old_img_w=self.imgsz
+        self.old_img_h=self.imgsz
+        self.old_img_b=1
 
     def detect(self, img0):
         """
@@ -82,29 +88,30 @@ class Yolov7Detector:
         :return: predictions tensor
         """
 
+        img=img0
         # Padded resize
-        img = letterbox(img0, self.img_size, stride=self.stride)[0]
-        orig_image_shape=img0.shape
-        resized_img_shape=img.shape
-
-        # Convert
-        img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
-        img = np.ascontiguousarray(img)
-
+        # img = letterbox(img0, self.img_size, stride=self.stride)[0]
+        # orig_image_shape=img0.shape
+        # resized_img_shape=img.shape
+        #
+        # # Convert
+        # img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+        # img = np.ascontiguousarray(img)
+        #
         img = torch.from_numpy(img).to(self.device)
         img = img.half() if self.half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
 
-        # Warmup
-        # if self.device.type != 'cpu' and (
-        #         old_img_b != img.shape[0] or old_img_h != img.shape[2] or old_img_w != img.shape[3]):
-        #     old_img_b = img.shape[0]
-        #     old_img_h = img.shape[2]
-        #     old_img_w = img.shape[3]
-        #     for i in range(3):
-        #         self.model(img, augment=self.augment)[0]
+        #Warmup
+        if self.device.type != 'cpu' and (
+                self.old_img_b != img.shape[0] or self.old_img_h != img.shape[2] or self.old_img_w != img.shape[3]):
+            self.old_img_b = img.shape[0]
+            self.old_img_h = img.shape[2]
+            self.old_img_w = img.shape[3]
+            for i in range(3):
+                self.model(img, augment=self.augment)[0]
 
         # Inference
         # t1 = time_synchronized()
@@ -121,7 +128,7 @@ class Yolov7Detector:
         class_ids = []
         for i, det in enumerate(pred):
             if len(det):
-                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], orig_image_shape).round()
+                # det[:, :4] = scale_coords(img.shape[2:], det[:, :4], orig_image_shape).round()
                 for *xyxy, score, cls in det:
                     coords = torch.tensor(xyxy).tolist()
                     xyxy_bboxs.append(coords)
@@ -145,15 +152,15 @@ class Yolov7Detector:
         y = (y1+y2)/2
         return x,y
 
-    def check_car_position(self,x,y,id):
+    def check_car_position(self, x, y, id):
         xLine, yLine = self.line
-        if x> xLine[0] and x < yLine[0]:
+        if x > xLine[0] and x < yLine[0]:
             if y > yLine[1]:
                 if self.cars_id.__contains__(id):
                     return False
-                    
+
                 self.cars_id.append(id)
 
                 return True
-            
+
         return False

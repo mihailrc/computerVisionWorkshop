@@ -33,10 +33,10 @@ if __name__ == '__main__':
     counter = VehicleCounter()
     initializeVideoWriter, vid_writer = False, None
     
-    for path, _, im0s, vid_cap in dataset:
+    for path, img, im0s, vid_cap in dataset:
         #detection
         t1 = time_synchronized()
-        xyxy, scores,class_ids = detector.detect(im0s)
+        xyxy, scores,class_ids = detector.detect(img)
         t2 = time_synchronized()
         print("Detection time (ms):", (t2 - t1) * 1000)
         #tracking
@@ -52,15 +52,15 @@ if __name__ == '__main__':
             im0s = detector.draw_boxes(im0s, xyxy_t, scores, class_ids_t, object_ids_t, lanes)
             draw_tracking_info(im0s, xyxy_t, class_ids_t, identities=object_ids_t, classes=detector.class_names)
 
-            if not initializeVideoWriter:  # new video
-                initializeVideoWriter = True
-                if isinstance(vid_writer, cv2.VideoWriter):
-                    vid_writer.release()  # release previous video writer
-                
-                fps, w, h = 30, im0s.shape[1], im0s.shape[0]
-                vid_writer = cv2.VideoWriter('/workspaces/computerVisionWorkshop/traffictest.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
-
-            vid_writer.write(im0s)
+            # if not initializeVideoWriter:  # new video
+            #     initializeVideoWriter = True
+            #     if isinstance(vid_writer, cv2.VideoWriter):
+            #         vid_writer.release()  # release previous video writer
+            #
+            #     fps, w, h = 30, im0s.shape[1], im0s.shape[0]
+            #     vid_writer = cv2.VideoWriter('/workspaces/computerVisionWorkshop/traffictest.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+            #
+            # vid_writer.write(im0s)
 
         # if isinstance(vid_writer, cv2.VideoWriter):
        #     vid_writer.release()  # release previous video writer 
