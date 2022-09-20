@@ -31,7 +31,7 @@ def detect(opt):
     detector = Yolov7Detector(weights=weights, traced=trace, classes=classes)
     dataset = LoadImages(source, stride=detector.stride)
     tracker = DeepsSortTracker()
-    counter = VehicleCounter()
+    counter = VehicleCounter(lanes=[[(180, 450),(1100, 450), 0]])
     initializeVideoWriter, vid_writer = False, None
 
     for path, _, im0s, vid_cap in dataset:
@@ -45,11 +45,10 @@ def detect(opt):
         print("Detection time (ms):" , (t2-t1)*1000, " Tracking time(ms): ", (t3-t2)*1000, " Total Time (ms):", (t3-t1)*1000)
                
         if xyxy_t is not None:         
-            # count vehicles
-            lanes = [[(180, 450),(1100, 450), 0]]
-            counter.count(xyxy_t, class_ids_t, object_ids_t, lanes)
+            # count vehicles            
+            counter.count(xyxy_t, class_ids_t, object_ids_t)
             #draw on images if you wish    
-            im0s = detector.draw_boxes(im0s, xyxy_t, scores, class_ids_t, object_ids_t, lanes)
+            im0s = detector.draw_boxes(im0s, xyxy_t, scores, class_ids_t, object_ids_t, counter.lanes)
             draw_tracking_info(im0s, xyxy_t, class_ids_t, identities=object_ids_t, classes=detector.class_names)
 
             if not initializeVideoWriter:  # new video

@@ -4,11 +4,12 @@ import numpy as np
 
 class VehicleCounter:
 
-    def __init__(self):
+    def __init__(self, lanes):
         self.counter = 0
         self.cars_id = []
+        self.lanes = lanes
 
-    def count(self, xyxy, class_ids, object_ids, lanes):
+    def count(self, xyxy, class_ids, object_ids):
 
         for i, box in enumerate(xyxy):
             x1, y1, x2, y2 = box[0], box[1], box[2], box[3]     
@@ -18,19 +19,14 @@ class VehicleCounter:
 
             x,y = self.center(x1,y1,x2,y2)
 
-            for i, lane in enumerate(lanes):
-
-                if not (f'lane_{i}' in globals()):
-                    globals()[f'lane_{i}'] = 0
+            for i, lane in enumerate(self.lanes):
                 
                 state = self.check_car_position(lane,x,y,id)
                 if state:
                     self.counter+=1
-                    globals()[f'lane_{i}']+=1
-                    
-                lane[2]=globals()[f'lane_{i}']
+                    lane[2]+=1
 
-        return self.counter
+        return self.counter, self.lanes
 
     def center(self, x1,y1,x2,y2):
             x = (x1+x2)/2
