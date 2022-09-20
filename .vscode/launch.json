@@ -8,7 +8,8 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "detect3.py,
+            "program": "detect3.py",
+            "args" : ["--weights", "yolov7-tiny.pt", "--source", "traffic.mp4"],
             "console": "integratedTerminal",
             "justMyCode": true
         }

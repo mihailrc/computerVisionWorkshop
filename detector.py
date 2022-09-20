@@ -16,11 +16,10 @@ if str(ROOT / 'yolov7') not in sys.path:
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from yolov7.models.experimental import attempt_load
-from yolov7.utils.datasets import LoadStreams, LoadImages, letterbox
-from yolov7.utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
-    scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
+from yolov7.utils.datasets import letterbox
+from yolov7.utils.general import check_img_size, non_max_suppression, scale_coords, set_logging
 from yolov7.utils.plots import plot_one_box
-from yolov7.utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
+from yolov7.utils.torch_utils import select_device, TracedModel
 
 class Yolov7Detector:
 
@@ -49,8 +48,6 @@ class Yolov7Detector:
         self.img_size=img_size
         self.color = (0, 255, 0)
 
-        # sys.path.append(os.path.join(os.path.dirname(__file__), ""))
-
         # Initialize
         set_logging()
         self.device = select_device(device)
@@ -72,8 +69,6 @@ class Yolov7Detector:
         if self.half:
             self.model.half()  # to FP16
 
-        # # self.names = coco_names
-        # self.model.eval()
         # Run inference
         if self.device.type != 'cpu':
             self.model(torch.zeros(1, 3, self.imgsz, self.imgsz).to(self.device).type_as(next(self.model.parameters())))  # run once
@@ -83,21 +78,8 @@ class Yolov7Detector:
         self.old_img_b=1
 
     def detect(self, img0):
-        """
-        :param x: list of numpy images (e.g. after cv2.imread) or numpy image
-        :return: predictions tensor
-        """
+        img=self.convert_image(img0,self.imgsz,self.stride)
 
-        img=img0
-        # Padded resize
-        # img = letterbox(img0, self.img_size, stride=self.stride)[0]
-        # orig_image_shape=img0.shape
-        # resized_img_shape=img.shape
-        #
-        # # Convert
-        # img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
-        # img = np.ascontiguousarray(img)
-        #
         img = torch.from_numpy(img).to(self.device)
         img = img.half() if self.half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -107,6 +89,7 @@ class Yolov7Detector:
         #Warmup
         if self.device.type != 'cpu' and (
                 self.old_img_b != img.shape[0] or self.old_img_h != img.shape[2] or self.old_img_w != img.shape[3]):
+            print("Executing warmup")
             self.old_img_b = img.shape[0]
             self.old_img_h = img.shape[2]
             self.old_img_w = img.shape[3]
@@ -114,27 +97,32 @@ class Yolov7Detector:
                 self.model(img, augment=self.augment)[0]
 
         # Inference
-        # t1 = time_synchronized()
-
         pred = self.model(img, augment=self.augment)[0]
-        # t2 = time_synchronized()
-
         # Apply NMS
         pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, classes=self.classes, agnostic=self.agnostic_nms)
-        # t3 = time_synchronized()
 
+        return self.process_predictions(pred, img0, img)
+
+    def convert_image(self, img0, img_size, stride):
+        img = letterbox(img0, img_size, stride=stride)[0]
+        # Convert
+        img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+        img = np.ascontiguousarray(img)
+        return img
+
+    def process_predictions(self, pred, im0s, img):
         xyxy_bboxs = []
         scores = []
         class_ids = []
+        orig_image_shape = im0s.shape
         for i, det in enumerate(pred):
             if len(det):
-                # det[:, :4] = scale_coords(img.shape[2:], det[:, :4], orig_image_shape).round()
+                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], orig_image_shape).round()
                 for *xyxy, score, cls in det:
                     coords = torch.tensor(xyxy).tolist()
                     xyxy_bboxs.append(coords)
                     scores.append(score.item())
                     class_ids.append(int(cls))
-
         return xyxy_bboxs, scores, class_ids
 
     def draw_boxes(self, img, xyxy, scores, class_ids, object_ids, lanes):
