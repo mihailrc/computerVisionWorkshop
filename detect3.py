@@ -40,7 +40,7 @@ def detect(opt):
         t1 = time_synchronized()
         xyxy, scores,class_ids = detector.detect(im0s)
         #draw detection boxes
-        # picasso.draw_boxes(im0s,xyxy,scores,class_ids)
+        # picasso.draw_detection_boxes(im0s,xyxy,scores,class_ids)
         t2 = time_synchronized()
         # print("Detection time (ms):" , (t2-t1)*1000)
         #tracking

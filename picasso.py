@@ -12,7 +12,7 @@ class Picasso:
         self.tracked_objects={}
         self.buffer_length=64
 
-    def draw_boxes(self, img, xyxy, scores, class_ids):
+    def draw_detection_boxes(self, img, xyxy, scores, class_ids):
         for i, box in enumerate(xyxy):
             label = "{class_name:}: {score:.2f}".format(class_name=self.class_names[int(class_ids[i])], score=scores[i])
             plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=1)
