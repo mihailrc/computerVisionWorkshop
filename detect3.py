@@ -30,7 +30,7 @@ def detect(opt):
 
     detector = Yolov7Detector(weights=weights, traced=trace, classes=classes)
     picasso = Picasso(class_names=detector.class_names, colors=detector.colors)
-    dataset = LoadImages(source, stride=detector.stride)
+    dataset = LoadImages(source)
     tracker = DeepsSortTracker()
     counter = VehicleCounter(lanes=[[(180, 450),(1100, 450), 0]])
     initializeVideoWriter, vid_writer = False, None
