@@ -1,7 +1,6 @@
 from pathlib import Path
 import os, sys
 
-import cv2
 import torch
 import numpy as np
 
@@ -18,7 +17,6 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 from yolov7.models.experimental import attempt_load
 from yolov7.utils.datasets import letterbox
 from yolov7.utils.general import check_img_size, non_max_suppression, scale_coords, set_logging
-from yolov7.utils.plots import plot_one_box
 from yolov7.utils.torch_utils import select_device, TracedModel
 
 class Yolov7Detector:
@@ -124,31 +122,3 @@ class Yolov7Detector:
                     scores.append(score.item())
                     class_ids.append(int(cls))
         return xyxy_bboxs, scores, class_ids
-
-    def draw_boxes(self, img, xyxy, scores, class_ids, object_ids, lanes):
-        for i, box in enumerate(xyxy):
-            label="{class_name:}: {score:.2f}".format(class_name=self.class_names[int(class_ids[i])], score=100)
-            plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=1)            
-
-            for i, lane in enumerate(lanes):
-                cv2.putText(img, f"Lane{ i }: { lane[2] }", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2)        
-                cv2.line(img,lane[0],lane[1], self.color,4)   
-        return img
-
-    def center(self, x1,y1,x2,y2):
-        x = (x1+x2)/2
-        y = (y1+y2)/2
-        return x,y
-
-    def check_car_position(self, x, y, id):
-        xLine, yLine = self.line
-        if x > xLine[0] and x < yLine[0]:
-            if y > yLine[1]:
-                if self.cars_id.__contains__(id):
-                    return False
-
-                self.cars_id.append(id)
-
-                return True
-
-        return False

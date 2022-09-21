@@ -21,14 +21,15 @@ from detector import Yolov7Detector
 from tracker import DeepsSortTracker
 from counter import VehicleCounter
 from yolov7.utils.datasets import LoadImages
-from drawUtils import draw_tracking_info
 from yolov7.utils.torch_utils import time_synchronized
+from picasso import Picasso
 
 def detect(opt):
 
     source, weights, view_img, classes, trace = opt.source, opt.weights, opt.view_img, opt.classes, not opt.no_trace
 
     detector = Yolov7Detector(weights=weights, traced=trace, classes=classes)
+    picasso = Picasso(class_names=detector.class_names, colors=detector.colors)
     dataset = LoadImages(source, stride=detector.stride)
     tracker = DeepsSortTracker()
     counter = VehicleCounter(lanes=[[(180, 450),(1100, 450), 0]])
@@ -38,37 +39,44 @@ def detect(opt):
         #detection
         t1 = time_synchronized()
         xyxy, scores,class_ids = detector.detect(im0s)
+        #draw detection boxes
+        # picasso.draw_boxes(im0s,xyxy,scores,class_ids)
         t2 = time_synchronized()
+        # print("Detection time (ms):" , (t2-t1)*1000)
         #tracking
         xyxy_t,class_ids_t, object_ids_t = tracker.update(xyxy, scores, class_ids, im0s)
         t3 = time_synchronized()
         print("Detection time (ms):" , (t2-t1)*1000, " Tracking time(ms): ", (t3-t2)*1000, " Total Time (ms):", (t3-t1)*1000)
-               
-        if xyxy_t is not None:         
-            # count vehicles            
-            counter.count(xyxy_t, class_ids_t, object_ids_t)
-            #draw on images if you wish    
-            im0s = detector.draw_boxes(im0s, xyxy_t, scores, class_ids_t, object_ids_t, counter.lanes)
-            draw_tracking_info(im0s, xyxy_t, class_ids_t, identities=object_ids_t, classes=detector.class_names)
+        if xyxy_t is not None:
+            #draw tracking info if you wish
+            picasso.draw_tracking_info(im0s,xyxy_t,class_ids_t,object_ids_t)
+            # count vehicles
+            _,lanes = counter.count(xyxy_t, class_ids_t, object_ids_t)
+            picasso.draw_counter_info(im0s,lanes)
 
-            if not initializeVideoWriter:  # new video
-                initializeVideoWriter = True
-                if isinstance(vid_writer, cv2.VideoWriter):
-                    vid_writer.release()  # release previous video writer
-
-                fps, w, h = 30, im0s.shape[1], im0s.shape[0]
-                vid_writer = cv2.VideoWriter('traffictest.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))            
-
-            if view_img:
-                cv2.imshow("image", im0s)
-                cv2.waitKey(1)
-            else:
-                vid_writer.write(im0s)
+        if view_img:
+            cv2.imshow("image", im0s)
+            cv2.waitKey(1)
+        else:
+            initializeVideoWriter, vid_writer = initialize_video_writer(im0s, initializeVideoWriter, vid_writer)
+            vid_writer.write(im0s)
 
     if isinstance(vid_writer, cv2.VideoWriter):
         vid_writer.release()  # release previous video writer
 
     print("Total Vehicle Count:", counter.counter)
+
+
+def initialize_video_writer(im0s, initializeVideoWriter, vid_writer):
+    if not initializeVideoWriter:  # new video
+        initializeVideoWriter = True
+        if isinstance(vid_writer, cv2.VideoWriter):
+            vid_writer.release()  # release previous video writer
+
+        fps, w, h = 30, im0s.shape[1], im0s.shape[0]
+        vid_writer = cv2.VideoWriter('traffictest.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+    return initializeVideoWriter, vid_writer
+
 
 if __name__ == '__main__':
 
