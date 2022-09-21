@@ -17,23 +17,24 @@ if str(ROOT / 'yolov7') not in sys.path:
     sys.path.append(str(ROOT / 'yolov7'))  # add yolov7 ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
+from yolov7.utils.datasets import LoadImages
+from yolov7.utils.torch_utils import time_synchronized
 from detector import Yolov7Detector
 from tracker import DeepsSortTracker
 from counter import VehicleCounter
-from yolov7.utils.datasets import LoadImages
-from yolov7.utils.torch_utils import time_synchronized
 from picasso import Picasso
+from videoWriter import VideoWriter
 
 def detect(opt):
 
     source, weights, view_img, classes, trace = opt.source, opt.weights, opt.view_img, opt.classes, not opt.no_trace
 
-    detector = Yolov7Detector(weights=weights, traced=trace, classes=classes)
-    picasso = Picasso(class_names=detector.class_names, colors=detector.colors)
     dataset = LoadImages(source)
+    detector = Yolov7Detector(weights=weights, traced=trace, classes=classes)
     tracker = DeepsSortTracker()
     counter = VehicleCounter(lanes=[[(180, 450),(1100, 450), 0]])
-    initializeVideoWriter, vid_writer = False, None
+    picasso = Picasso(class_names=detector.class_names, colors=detector.colors)
+    videoWriter = VideoWriter(writeLocation="testTraffic.mp4")
 
     for path, _, im0s, vid_cap in dataset:
         #detection
@@ -58,25 +59,11 @@ def detect(opt):
             cv2.imshow("image", im0s)
             cv2.waitKey(1)
         else:
-            initializeVideoWriter, vid_writer = initialize_video_writer(im0s, initializeVideoWriter, vid_writer)
-            vid_writer.write(im0s)
+            videoWriter.write(im0s)
 
-    if isinstance(vid_writer, cv2.VideoWriter):
-        vid_writer.release()  # release previous video writer
+    videoWriter.release()
 
     print("Total Vehicle Count:", counter.counter)
-
-
-def initialize_video_writer(im0s, initializeVideoWriter, vid_writer):
-    if not initializeVideoWriter:  # new video
-        initializeVideoWriter = True
-        if isinstance(vid_writer, cv2.VideoWriter):
-            vid_writer.release()  # release previous video writer
-
-        fps, w, h = 30, im0s.shape[1], im0s.shape[0]
-        vid_writer = cv2.VideoWriter('traffictest.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
-    return initializeVideoWriter, vid_writer
-
 
 if __name__ == '__main__':
 
