@@ -1,0 +1,69 @@
+Slides:
+- Show of hands:
+	- How many of you can write code
+	- How of you are familiar with the term: AI/ML/Deep Learning
+	- How many of you think using video to counting vehicles is an easy problem?
+- Goals
+	- Lean how to solve Computer Vision problems 
+	- Use provided toolkit to experiment and ...
+	- Apply what you learned to solve your own problems
+- Traditional Programming vs ML
+	- Manually write the logic. Input + Rules => Outputs
+	- What if problem is so hard you cannot write the rules?
+		- Learn from data
+		- Inputs + Outputs => Model (or Rules)
+- AI/ML/Deep Learning
+	- AI - create intelligent machines that can simulate thinking capability and behavior. E.g robotics
+	- ML - subset of AI that allow machines to learn from data without being programmed explicitly. Eg. predicting product preferences.
+	- Deep Learning - subset of ML that uses complex artificial neural networks. ML features manually created, in DL features are automatically extracted. E.g. image classification or generating images from a description
+- Quiz: Deep Learning, ML, AI or Traditional Programming?
+	- Lane Detection 
+	- Path Planning
+	- Behavioral Cloning Video
+	- Vehicle Detection
+- Biggest Challenge
+	- Images/video represent unstructured data that is hard to analyze and interpret automatically. 
+	- What  can be done about it? How do we turn unstructured information into structured? 
+- How Computers learn to recognize objects
+	- video 
+- Our problem
+	- Find out vehicle count from a video of highway traffic
+	- We will solve this problem step by step - show our video
+- YOLO
+	- basic intro to YOLO
+	- how it works
+- Coding: Building block 1 -  Detection algorithm
+	- Coding: input image -> outputs: identified objects, bounding boxes, confidence scores
+	- Trained Models
+	- Performances: CPU vs GPU
+	- Configuration parameters
+- Coding: Building block 2 -  Open CV
+	- write text, boxes
+	- use image from previous step. Draw boxes, analyze results
+	- transformations, bird's eye view  - maybe skip?
+- Object detection on video
+	- frames are independent. How do you relate objects across frames?
+- Coding: Object tracking
+	- Challenges
+	- Different types of models
+	- Kalman Filters
+	- Tuning parameters
+- Coding: Vehicle Counts
+	- Think about how to implement the solution
+	- code walkthrough
+- Coding: Vehicle Counts per lane
+- Coding: Vehicle Counts per vehicle type - maybe skip?
+- Discussion or coding: 
+	- Calculate vehicle speed
+	- Traffic flow analytics
+- Custom model - use existing data
+	- Start with existing model if you can find one
+	- Train the model
+	- Evaluate the model
+- Custom model - annotate your own data
+	- Image annotations
+	- Data format
+- Active Learning
+	- improve model overtime
+	- adapt to changes
+- Wrap-up
