@@ -67,4 +67,10 @@ Slides:
 - Active Learning
 	- improve model overtime
 	- adapt to changes
+- Some recent advances
+  - Stable Diffusion 
+    - https://twitter.com/xsteenbrugge/status/1558508866463219712
+    - https://github.com/CompVis/stable-diffusion
+  - Whisper 
+    - https://openai.com/blog/whisper/
 - Wrap-up
