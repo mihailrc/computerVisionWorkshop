@@ -1,5 +1,6 @@
 venv/
 .idea/
 runs/
+weights/
 *.pt
 __pycache__/
