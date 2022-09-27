@@ -18,6 +18,14 @@ class Picasso:
             plot_one_box(box, img, label=label, color=self.colors[int(class_ids[i])], line_thickness=1)
         return img
 
+    def draw_tracking_info(self, img, boxes, classes, identities):
+        self.process_tracked_object(identities,boxes)
+        for i, box in enumerate(boxes):
+            label = "{class_name:}: {indentity:}".format(class_name=self.class_names[classes[i]], indentity=identities[i])
+            plot_one_box(box, img, label=label, color=self.colors[int(classes[i])], line_thickness=1)
+            id = int(identities[i]) if identities is not None else 0
+            self.draw_trail(classes[i], id, img)
+
     def draw_counter_info(self, img, lanes):
         #green
         color=(0,255,0)
@@ -47,14 +55,6 @@ class Picasso:
             self.tracked_objects[id].appendleft(center)
 
         return self.tracked_objects
-
-    def draw_tracking_info(self, img, boxes, classes, identities):
-        self.process_tracked_object(identities,boxes)
-        for i, box in enumerate(boxes):
-            label = "{class_name:}: {indentity:}".format(class_name=self.class_names[classes[i]], indentity=identities[i])
-            plot_one_box(box, img, label=label, color=self.colors[int(classes[i])], line_thickness=1)
-            id = int(identities[i]) if identities is not None else 0
-            self.draw_trail(classes[i], id, img)
 
     def draw_trail(self, class_id, id, img):
         for i in range(1, len(self.tracked_objects[id])):
