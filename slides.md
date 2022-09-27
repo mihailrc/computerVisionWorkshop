@@ -27,7 +27,7 @@ Slides:
 	- Images/video represent unstructured data that is hard to analyze and interpret automatically. 
 	- What  can be done about it? How do we turn unstructured information into structured? 
 - How Computers learn to recognize objects
-	- https://www.youtube.com/watch?v=Cgxsv1riJhIx
+	- https://youtu.be/Cgxsv1riJhI
 - Our end product
 	- https://youtu.be/SdSO5bvIDAQ
 - YOLO
@@ -35,20 +35,22 @@ Slides:
 	- how it works
 - Coding: Building block 1 -  Detection algorithm
 	- Coding: input image -> outputs: identified objects, bounding boxes, confidence scores
-	- Trained Models
-	- Performances: CPU vs GPU
-	- Configuration parameters
 - Coding: Building block 2 -  Open CV
 	- write text, boxes
 	- use image from previous step. Draw boxes, analyze results
-	- transformations, bird's eye view  - maybe skip?
-- Object detection on video
-	- frames are independent. How do you relate objects across frames?
+- Coding Inference on video - understanding performance
+  - Performance: 
+    - Trained Models
+    - CPU vs GPU
+  - Configuration parameters
+    - classes 
+    - confidence threshold
 - Coding: Object tracking
-	- Challenges
-	- Different types of models
-	- Kalman Filters
-	- Tuning parameters
+  - frames are independent. How do you relate objects across frames?
+  - Challenges
+  - Different types of models
+  - Kalman Filters
+  - Tuning parameters
 - Coding: Vehicle Counts
 	- Think about how to implement the solution
 	- code walkthrough
