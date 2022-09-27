@@ -1,8 +1,8 @@
 Slides:
 - Show of hands:
 	- How many of you can write code
-	- How of you are familiar with the term: AI/ML/Deep Learning
-	- How many of you think using video to counting vehicles is an easy problem?
+	- How many of you are familiar with the term: AI/ML/Deep Learning
+	- How many of you think using video to count cars or identify potholes is an easy problem?
 - Goals
 	- Lean how to solve Computer Vision problems 
 	- Use provided toolkit to experiment and ...
@@ -16,19 +16,20 @@ Slides:
 	- AI - create intelligent machines that can simulate thinking capability and behavior. E.g robotics
 	- ML - subset of AI that allow machines to learn from data without being programmed explicitly. Eg. predicting product preferences.
 	- Deep Learning - subset of ML that uses complex artificial neural networks. ML features manually created, in DL features are automatically extracted. E.g. image classification or generating images from a description
+    - https://towardsdatascience.com/notes-on-artificial-intelligence-ai-machine-learning-ml-and-deep-learning-dl-for-56e51a2071c2
+    - https://medium.com/@prolinecoders/diffrerence-between-artificial-intelligence-machine-learning-and-deep-learning-533a6373dabe
 - Quiz: Deep Learning, ML, AI or Traditional Programming?
-	- Lane Detection 
-	- Path Planning
-	- Behavioral Cloning Video
-	- Vehicle Detection
+	- Lane Detection https://youtu.be/OV1l5xFHiwQ?t=16
+	- Path Planning https://youtu.be/t7P4au6bT1Q?t=23
+	- Vehicle Detection https://youtu.be/kZViHcQgGYU?t=37
+	- Behavioral Cloning Video https://youtu.be/vXzgXb1rkjw?t=24
 - Biggest Challenge
 	- Images/video represent unstructured data that is hard to analyze and interpret automatically. 
 	- What  can be done about it? How do we turn unstructured information into structured? 
 - How Computers learn to recognize objects
-	- video 
-- Our problem
-	- Find out vehicle count from a video of highway traffic
-	- We will solve this problem step by step - show our video
+	- https://www.youtube.com/watch?v=Cgxsv1riJhIx
+- Our end product
+	- https://youtu.be/SdSO5bvIDAQ
 - YOLO
 	- basic intro to YOLO
 	- how it works
