@@ -4,7 +4,7 @@ Slides:
 	- How many of you are familiar with the term: AI/ML/Deep Learning
 	- How many of you think using video to count cars or identify potholes is an easy problem?
 - Goals
-	- Lean how to solve Computer Vision problems 
+	- Lean how to solve Computer Vision problems
 	- Use provided toolkit to experiment and ...
 	- Apply what you learned to solve your own problems
 - Traditional Programming vs ML
@@ -24,8 +24,8 @@ Slides:
 	- Vehicle Detection https://youtu.be/kZViHcQgGYU?t=37
 	- Behavioral Cloning Video https://youtu.be/vXzgXb1rkjw?t=24
 - Biggest Challenge
-	- Images/video represent unstructured data that is hard to analyze and interpret automatically. 
-	- What  can be done about it? How do we turn unstructured information into structured? 
+	- Images/video represent unstructured data that is hard to analyze and interpret automatically.
+	- What  can be done about it? How do we turn unstructured information into structured?
 - How Computers learn to recognize objects
 	- https://youtu.be/Cgxsv1riJhI
 - Our end product
@@ -39,11 +39,11 @@ Slides:
 	- write text, boxes
 	- use image from previous step. Draw boxes, analyze results
 - Coding Inference on video - understanding performance
-  - Performance: 
+  - Performance:
     - Trained Models
     - CPU vs GPU
   - Configuration parameters
-    - classes 
+    - classes
     - confidence threshold
 - Coding: Object tracking
   - frames are independent. How do you relate objects across frames?
@@ -56,7 +56,7 @@ Slides:
 	- code walkthrough
 - Coding: Vehicle Counts per lane
 - Coding: Vehicle Counts per vehicle type - maybe skip?
-- Discussion or coding: 
+- Discussion or coding:
 	- Calculate vehicle speed
 	- Traffic flow analytics
 - Custom model - use existing data
@@ -70,9 +70,11 @@ Slides:
 	- improve model overtime
 	- adapt to changes
 - Some recent advances
-  - Stable Diffusion 
+  - Stable Diffusion
     - https://twitter.com/xsteenbrugge/status/1558508866463219712
     - https://github.com/CompVis/stable-diffusion
-  - Whisper 
+  - Whisper
     - https://openai.com/blog/whisper/
 - Wrap-up
+- Other
+ - DL vs Humans https://twitter.com/fchollet/status/1573843771548389376
