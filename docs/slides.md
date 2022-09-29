@@ -79,4 +79,4 @@ Slides:
 - Other
  - DL vs Humans https://twitter.com/fchollet/status/1573843771548389376
  - Nvidia nano: https://nvidianews.nvidia.com/news/nvidia-jetson-orin-nano-sets-new-standard-for-entry-level-edge-ai-and-robotics-with-80x-performance-leap
- 
+  - https://developer.nvidia.com/blog/solving-entry-level-edge-ai-challenges-with-nvidia-jetson-orin-nano/
