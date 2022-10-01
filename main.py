@@ -33,6 +33,8 @@ def detect(opt):
     detector = Yolov7Detector(weights=weights, traced=trace, classes=classes)
     tracker = DeepsSortTracker()
     counter = VehicleCounter(lanes=[[(180, 450),(1100, 450), 0]])
+    #for vehicle count per lane
+    # counter = VehicleCounter(lanes=[[(180, 450),(445, 450), 0],[(450, 450),(650, 450), 0],[(655, 450),(865, 450), 0],[(870, 450),(1100, 450), 0]])
     picasso = Picasso(class_names=detector.class_names, colors=detector.colors)
     videoWriter = VideoWriter(writeLocation="testTraffic.mp4")
 
@@ -52,8 +54,8 @@ def detect(opt):
             #draw tracking info if you wish
             picasso.draw_tracking_info(im0s,xyxy_t,class_ids_t,object_ids_t)
             # count vehicles
-            _,lanes = counter.count(xyxy_t, class_ids_t, object_ids_t)
-            picasso.draw_counter_info(im0s,lanes)
+            counter.count(xyxy_t, class_ids_t, object_ids_t)
+            picasso.draw_counter_info(im0s,counter)
 
         if view_img:
             cv2.imshow("image", im0s)
@@ -63,7 +65,7 @@ def detect(opt):
 
     videoWriter.release()
 
-    print("Total Vehicle Count:", counter.counter)
+    print("Total Vehicle Count:", counter.total_count)
 
 if __name__ == '__main__':
 

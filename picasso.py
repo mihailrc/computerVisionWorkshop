@@ -26,15 +26,16 @@ class Picasso:
             id = int(identities[i]) if identities is not None else 0
             self.draw_trail(classes[i], id, img)
 
-    def draw_counter_info(self, img, lanes):
+    def draw_counter_info(self, img, counter):
         #green
         color=(0,255,0)
+        lanes = counter.lanes
         if len(lanes)==1:
-            cv2.putText(img, f"Vehicle Count: {lanes[0][2]}", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+            cv2.putText(img, f"Vehicle Count: {counter.total_count}", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
             cv2.line(img, lanes[0][0], lanes[0][1], color, 4)
         else:
             for i, lane in enumerate(lanes):
-                cv2.putText(img, f"Lane {(i+1)} Count: {lane[2]}", (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+                cv2.putText(img, f"Lane {(i+1)} Count: {lane[2]}", (30, 30*(i+1)), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
                 cv2.line(img, lane[0], lane[1], color, 4)
 
     def process_tracked_object(self, identities, boxes):

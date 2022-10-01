@@ -1,45 +1,39 @@
-import cv2
-import torch
-import numpy as np
-
 class VehicleCounter:
 
     def __init__(self, lanes):
-        self.counter = 0
+        self.total_count = 0
         self.cars_id = []
         self.lanes = lanes
 
     def count(self, xyxy, class_ids, object_ids):
 
         for i, box in enumerate(xyxy):
-            x1, y1, x2, y2 = box[0], box[1], box[2], box[3]     
 
             # get ID of object
-            id = int(object_ids[i]) if object_ids is not None else 0       
+            id = int(object_ids[i]) if object_ids is not None else 0
 
-            x,y = self.center(x1,y1,x2,y2)
+            if self.did_it_cross_the_lane(self.lanes[0], box, id):
+                self.total_count += 1
 
-            for i, lane in enumerate(self.lanes):
-                
-                state = self.check_car_position(lane,x,y,id)
-                if state:
-                    self.counter+=1
-                    lane[2]+=1
+        return self.total_count, self.lanes
 
-        return self.counter, self.lanes
-
-    def center(self, x1,y1,x2,y2):
-            x = (x1+x2)/2
-            y = (y1+y2)/2
+    def center(self, box):
+            x = (box[0]+box[2])/2
+            y = (box[1]+box[3])/2
             return x,y
 
-    def check_car_position(self,line,x,y,id):
-        xLine, yLine, _ = line
-        if x> xLine[0] and x < yLine[0]:
-            if y > yLine[1]:
+    def did_it_cross_the_lane(self,lane,box,id):
+        startPoint, endPoint, _ = lane
+        x,y=self.center(box)
+        #check if is on correct lane
+        if x> startPoint[0] and x < endPoint[0]:
+            #check if it crossed the lane
+            if y > endPoint[1]:
+                # ignore if we already counted this car
                 if self.cars_id.__contains__(id):
                     return False
                     
+                #keep track of objects that crossed the lane
                 self.cars_id.append(id)
 
                 return True
